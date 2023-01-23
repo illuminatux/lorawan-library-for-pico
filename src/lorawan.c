@@ -45,6 +45,7 @@
 #include "LmHandler.h"
 #include "LmhpCompliance.h"
 #include "LmHandlerMsgDisplay.h"
+#include "NvmDataMgmt.h"
 
 /*!
  * LoRaWAN default end-device class
@@ -383,6 +384,17 @@ int lorawan_receive(void* data, uint8_t data_len, uint8_t* app_port)
 void lorawan_debug(bool debug)
 {
     Debug = debug;
+}
+
+int lorawan_erase_nvm()
+{
+    if (!NvmDataMgmtFactoryReset()) {
+        return -1;
+    }
+
+    EepromMcuFlush();
+
+    return 0;
 }
 
 static void OnMacProcessNotify( void )

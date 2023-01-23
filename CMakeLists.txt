@@ -164,4 +164,3 @@ else()
     add_subdirectory("examples/otaa_temperature_led")
 endif()
 
-
