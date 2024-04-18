@@ -1,3 +1,8 @@
+PowTechnology's Fork for internal use.
+
+⚠⚠⚠ You probably want to use a different fork of the [original repo](https://github.com/ArmDeveloperEcosystem/lorawan-library-for-pico). ⚠⚠⚠
+
+
 # pico-lorawan
 Enable LoRaWAN communications on your [Raspberry Pi Pico](https://www.raspberrypi.org/products/raspberry-pi-pico/) or any RP2040 based board using a [Semtech SX1276 radio module](https://www.semtech.com/apps/product.php?pn=SX1276) or [Waveshare's SX1262-based LoRaWAN module](https://www.waveshare.com/wiki/Pico-LoRa-SX1262-868M).
 
@@ -10,7 +15,7 @@ Based on the Semtech's [LoRaWAN end-device stack implementation and example proj
    * [Adafruit Feather RP2040](https://www.adafruit.com/product/4884)
  * Semtech SX1276 board
    * [Adafruit RFM95W LoRa Radio Transceiver Breakout - 868 or 915 MHz - RadioFruit](https://www.adafruit.com/product/3072)
-   * [Adafruit LoRa Radio FeatherWing - RFM95W 900 MHz - RadioFruit](https://www.adafruit.com/product/3231) 
+   * [Adafruit LoRa Radio FeatherWing - RFM95W 900 MHz - RadioFruit](https://www.adafruit.com/product/3231)
  * Semtech SX1262 board
    * [Waveshare Pico-LoRa-SX1262-868M](https://www.waveshare.com/wiki/Pico-LoRa-SX1262-868M) | [Shop](https://www.waveshare.com/pico-lora-sx1262-868m.htm)
 
@@ -48,11 +53,11 @@ GPIO pins are configurable in examples or API.
 
 ## Enabling support for Waveshare Pico-LoRa-SX1262-868M
 
-By default this library only supports the Semtech SX1276 boards mentioned in the first section. Support for Waveshare's SX1262-based Raspberry Pi Pico Hat is available, but needs to be enabled actively. 
+By default this library only supports the Semtech SX1276 boards mentioned in the first section. Support for Waveshare's SX1262-based Raspberry Pi Pico Hat is available, but needs to be enabled actively.
 
-Take the following steps to switch from SX1276 to Waveshare SX1262 support: 
+Take the following steps to switch from SX1276 to Waveshare SX1262 support:
 
-Uncomment 
+Uncomment
 
 ```
 set(WITH_WAVESHARE_SX126X ON)
@@ -96,7 +101,7 @@ There is a `config.h` file to your ABP or OTAA node configuration for each examp
 ## Cloning
 
 ```sh
-git clone --recurse-submodules https://github.com/sandeepmistry/pico-lorawan.git 
+git clone --recurse-submodules https://github.com/sandeepmistry/pico-lorawan.git
 ```
 
 ## Building
@@ -128,7 +133,7 @@ You can erase it using the [`erase_nvm` example](examples/nvm), when:
 
 A big thanks to [Alasdair Allan](https://github.com/aallan) for his initial testing of EU868 support!
 
-Thanks to Waveshare and [siuwahzhong](https://github.com/siuwahzhong) for providing their modified version of this library. Parts of their work have been merged back into this library by [Thomas Leister](https://github.com/ThomasLeister). Original source: [ZIP](https://www.waveshare.com/w/upload/0/08/Pico-LoRa-SX1262-868M_Code.zip) | [GitHub](https://github.com/siuwahzhong/lorawan-library-for-pico) 
+Thanks to Waveshare and [siuwahzhong](https://github.com/siuwahzhong) for providing their modified version of this library. Parts of their work have been merged back into this library by [Thomas Leister](https://github.com/ThomasLeister). Original source: [ZIP](https://www.waveshare.com/w/upload/0/08/Pico-LoRa-SX1262-868M_Code.zip) | [GitHub](https://github.com/siuwahzhong/lorawan-library-for-pico)
 
 This project was created on behalf of the [Arm Software Developers](https://developer.arm.com/) team, follow them on Twitter: [@ArmSoftwareDev](https://twitter.com/armsoftwaredev) and YouTube: [Arm Software Developers](https://www.youtube.com/channel/UCHUAckhCfRom2EHDGxwhfOg) for more resources!
 

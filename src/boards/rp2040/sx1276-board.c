@@ -34,6 +34,9 @@
 
 #include "radio/radio.h"
 
+#define RADIO_DIO0_GPIO_IRQ     GPIO_IRQ_EDGE_RISE
+#define RADIO_DIO1_GPIO_IRQ     GPIO_IRQ_EDGE_RISE | GPIO_IRQ_EDGE_FALL
+
 const struct Radio_s Radio =
 {
     SX1276Init,
@@ -67,11 +70,14 @@ const struct Radio_s Radio =
 
 static DioIrqHandler** irq_handlers;
 
-void dio_gpio_callback(uint gpio, uint32_t events)
+void dio_gpio_callback(void)
 {
-    if (gpio == SX1276.DIO0.pin) {
+    if (gpio_get_irq_event_mask(SX1276.DIO0.pin) & RADIO_DIO0_GPIO_IRQ) {
+         gpio_acknowledge_irq(SX1276.DIO0.pin, RADIO_DIO0_GPIO_IRQ);
         irq_handlers[0](NULL);
-    } else if (gpio == SX1276.DIO1.pin) {
+    }
+    if (gpio_get_irq_event_mask(SX1276.DIO1.pin) & RADIO_DIO1_GPIO_IRQ) {
+        gpio_acknowledge_irq(SX1276.DIO1.pin, RADIO_DIO1_GPIO_IRQ);
         irq_handlers[1](NULL);
     }
 }
@@ -122,8 +128,10 @@ void SX1276IoIrqInit( DioIrqHandler **irqHandlers )
 {
     irq_handlers = irqHandlers;
 
-    gpio_set_irq_enabled_with_callback(SX1276.DIO0.pin, GPIO_IRQ_EDGE_RISE, true, &dio_gpio_callback);
-    gpio_set_irq_enabled_with_callback(SX1276.DIO1.pin, GPIO_IRQ_EDGE_RISE | GPIO_IRQ_EDGE_FALL, true, &dio_gpio_callback);
+    gpio_set_irq_enabled(SX1276.DIO0.pin, RADIO_DIO0_GPIO_IRQ, true);
+    gpio_set_irq_enabled(SX1276.DIO1.pin, RADIO_DIO1_GPIO_IRQ, true);
+    gpio_add_raw_irq_handler_with_order_priority(SX1276.DIO0.pin, dio_gpio_callback, PICO_SHARED_IRQ_HANDLER_HIGHEST_ORDER_PRIORITY);
+    gpio_add_raw_irq_handler_with_order_priority(SX1276.DIO1.pin, dio_gpio_callback, PICO_SHARED_IRQ_HANDLER_HIGHEST_ORDER_PRIORITY);
 }
 
 /*!

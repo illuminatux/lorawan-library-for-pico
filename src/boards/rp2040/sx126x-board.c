@@ -223,11 +223,11 @@ void SX126xWriteRegisters( uint16_t address, uint8_t *buffer, uint16_t size )
     SX126xCheckDeviceReady( );
 
     GpioWrite( &SX126x.Spi.Nss, 0 );
-    
+
     SpiInOut( &SX126x.Spi, RADIO_WRITE_REGISTER );
     SpiInOut( &SX126x.Spi, ( address & 0xFF00 ) >> 8 );
     SpiInOut( &SX126x.Spi, address & 0x00FF );
-    
+
     for( uint16_t i = 0; i < size; i++ )
     {
         SpiInOut( &SX126x.Spi, buffer[i] );

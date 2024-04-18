@@ -61,12 +61,20 @@ uint32_t GpioMcuRead( Gpio_t *obj )
     return gpio_get(obj->pin);
 }
 
+
+
 void GpioMcuSetInterrupt( Gpio_t *obj, IrqModes irqMode, IrqPriorities irqPriority, GpioIrqHandler *irqHandler )
 {
-    gpio_set_irq_enabled_with_callback(obj->pin,GPIO_IRQ_EDGE_RISE,true,irqHandler);
+    assert(false);
+    // uint32_t event_mask = 0;
+    // if(irqMode & IRQ_RISING_EDGE) event_mask |= GPIO_IRQ_EDGE_RISE;
+    // if(irqMode & IRQ_FALLING_EDGE) event_mask |= GPIO_IRQ_EDGE_FALL;
+    // if(irqMode & IRQ_RISING_FALLING_EDGE) event_mask |= GPIO_IRQ_EDGE_FALL | GPIO_IRQ_EDGE_FALL;
+    
+    // gpio_set_irq_enabled_with_callback(obj->pin, GPIO_IRQ_EDGE_RISE, true, irqHandler);
 }
 
 void GpioMcuRemoveInterrupt( Gpio_t *obj )
 {
-    gpio_set_irq_enabled(obj->pin,GPIO_IRQ_EDGE_RISE,false);
+    gpio_set_irq_enabled(obj->pin, GPIO_IRQ_EDGE_RISE, false);
 }
