@@ -51,7 +51,7 @@
 /*!
  * LoRaWAN default end-device class
  */
-#define LORAWAN_DEFAULT_CLASS                       CLASS_A
+#define LORAWAN_DEFAULT_CLASS                       CLASS_C
 
 /*!
  * LoRaWAN Adaptive Data Rate
@@ -311,6 +311,11 @@ int lorawan_join()
     LmHandlerJoin( );
 
     return 0;
+}
+
+LmHandlerFlagStatus_t lorawan_join_status()
+{
+    return LmHandlerJoinStatus();
 }
 
 int lorawan_is_joined()

@@ -2,7 +2,7 @@
  * Copyright (c) 2021 Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
- * 
+ *
  */
 
 #ifndef _PICO_LORAWAN_H_
@@ -16,6 +16,7 @@ extern "C" {
 #include "hardware/spi.h"
 
 #include "LoRaMac.h"
+#include "LmHandlerTypes.h"
 
 struct lorawan_sx12xx_settings {
     struct {
@@ -52,6 +53,8 @@ int lorawan_init_abp(const struct lorawan_sx12xx_settings* sx12xx_settings, LoRa
 int lorawan_init_otaa(const struct lorawan_sx12xx_settings* sx12xx_settings, LoRaMacRegion_t region, const struct lorawan_otaa_settings* otaa_settings);
 
 int lorawan_join();
+
+LmHandlerFlagStatus_t lorawan_join_status();
 
 int lorawan_is_joined();
 
