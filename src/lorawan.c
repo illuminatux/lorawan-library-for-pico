@@ -323,6 +323,16 @@ int lorawan_is_joined()
     return (LmHandlerJoinStatus() == LORAMAC_HANDLER_SET);
 }
 
+void lorawan_reset_radio( void )
+{
+    #if defined sx1276
+    SX1276Reset();
+    //#elif defined sx126x
+    #else
+    #error "Not Implemented"
+    #endif
+}
+
 int lorawan_process()
 {
     int sleep = 0;
@@ -591,6 +601,7 @@ static void OnNetworkParametersChange( CommissioningParams_t* params )
     }
 
     if (Debug) {
+        printf( "\n###### =========== NetworkParametersUpdate =========== ######\n" );
         DisplayNetworkParametersUpdate( params );
     }
 }

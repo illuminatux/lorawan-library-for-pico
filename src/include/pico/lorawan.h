@@ -48,6 +48,8 @@ struct lorawan_otaa_settings {
 
 const char* lorawan_default_dev_eui(char* dev_eui);
 
+void lorawan_reset_radio( void );
+
 int lorawan_init_abp(const struct lorawan_sx12xx_settings* sx12xx_settings, LoRaMacRegion_t region, const struct lorawan_abp_settings* abp_settings);
 
 int lorawan_init_otaa(const struct lorawan_sx12xx_settings* sx12xx_settings, LoRaMacRegion_t region, const struct lorawan_otaa_settings* otaa_settings);
