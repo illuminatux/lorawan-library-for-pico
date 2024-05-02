@@ -232,15 +232,38 @@ static int lorawan_init(const struct lorawan_sx12xx_settings* sx12xx_settings, L
         NC
     );
 
+    if(Debug)
+    {
+        printf("Initialized SPI%d\n", spi == SPI_1 ? 0 : 1);
+    }
+
     SX1276.Spi.Nss.pin = sx12xx_settings->spi.nss;
     SX1276.Reset.pin = sx12xx_settings->reset;
     SX1276.DIO0.pin = sx12xx_settings->dio0;
     SX1276.DIO1.pin = sx12xx_settings->dio1;
 
+    if(Debug)
+    {
+        printf("Init GPIO Nss=%d Reset=%d DIO0=%d DIO1=%d\n",
+            SX1276.Spi.Nss.pin,
+            SX1276.Reset.pin,
+            SX1276.DIO0.pin,
+            SX1276.DIO1.pin
+        );
+    }
     SX1276IoInit();
+    if(Debug)
+    {
+        printf("Init GPIO success\n");
+    }
 
+    uint8_t lr_version = SX1276Read(REG_LR_VERSION);
+    if(Debug) {
+        printf("Read LR_VERSION %02x\n", lr_version);
+    }
     // check version register
-    if (SX1276Read(REG_LR_VERSION) != 0x12) {
+    if (lr_version != 0x12) {
+
         return -1;
     }
 
@@ -275,17 +298,36 @@ static int lorawan_init(const struct lorawan_sx12xx_settings* sx12xx_settings, L
 
     LmHandlerParams.Region = region;
 
+    if(Debug) {
+        printf("LmHandlerInit...\n");
+    }
+
     if ( LmHandlerInit( &LmHandlerCallbacks, &LmHandlerParams ) != LORAMAC_HANDLER_SUCCESS )
     {
+        if(Debug) {
+            printf("LmHandlerInit failed\n");
+        }
         return -1;
+    }
+
+    if(Debug) {
+        printf("LmHandlerInit success\n");
     }
 
     // Set system maximum tolerated rx error in milliseconds
     LmHandlerSetSystemMaxRxError( 20 );
 
+    if(Debug) {
+        printf("LmHandlerSetSystemMaxRxError success\n");
+    }
+
     // The LoRa-Alliance Compliance protocol package should always be
     // initialized and activated.
     LmHandlerPackageRegister( PACKAGE_ID_COMPLIANCE, &LmhpComplianceParams );
+
+    if(Debug) {
+        printf("LmHandlerPackageRegister(PACKAGE_ID_COMPLIANCE) success\n");
+    }
 
     return 0;
 }
