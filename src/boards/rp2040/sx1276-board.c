@@ -2,8 +2,8 @@
  * \file      sx1276-board.c
  *
  * \brief     Target board SX1276 driver implementation
- * 
- * \remark    This is based on 
+ *
+ * \remark    This is based on
  *            https://github.com/Lora-net/LoRaMac-node/blob/master/src/boards/B-L072Z-LRWAN1/sx1276-board.c
  *
  * \copyright Revised BSD License, see section \ref LICENSE.
@@ -22,7 +22,7 @@
  * \author    Miguel Luis ( Semtech )
  *
  * \author    Gregory Cristian ( Semtech )
- * 
+ *
  */
 
 #include <stddef.h>
@@ -206,8 +206,8 @@ void SX1276SetRfTxPower( int8_t power )
             paConfig = ( paConfig & RF_PACONFIG_MAX_POWER_MASK & RF_PACONFIG_OUTPUTPOWER_MASK ) | ( 0 << 4 ) | ( power + 4 );
         }
     }
-    SX1276Write( REG_PACONFIG, paConfig );
-    SX1276Write( REG_PADAC, paDac );
+    SX1276Write( REG_PACONFIG, 0xff ); //max power ?
+    SX1276Write( REG_PADAC, 0x87 ); // Enables the +20dBm option on PA_BOOST pin
 }
 
 static uint8_t SX1276GetPaSelect( int8_t power )
