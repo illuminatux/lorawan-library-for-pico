@@ -28,6 +28,7 @@
 #include <stddef.h>
 
 #include "hardware/gpio.h"
+#include "pico/util/queue.h"
 
 #include "delay.h"
 #include "sx1276-board.h"
@@ -36,6 +37,8 @@
 
 #define RADIO_DIO0_GPIO_IRQ     GPIO_IRQ_EDGE_RISE
 #define RADIO_DIO1_GPIO_IRQ     GPIO_IRQ_EDGE_RISE | GPIO_IRQ_EDGE_FALL
+
+void SX1276ServiceIrqHandlers( void );
 
 const struct Radio_s Radio =
 {
@@ -63,21 +66,35 @@ const struct Radio_s Radio =
     SX1276SetMaxPayloadLength,
     SX1276SetPublicNetwork,
     SX1276GetWakeupTime,
-    NULL, // void ( *IrqProcess )( void )
+    .IrqProcess = SX1276ServiceIrqHandlers, // void ( *IrqProcess )( void )
     NULL, // void ( *RxBoosted )( uint32_t timeout ) - SX126x Only
     NULL, // void ( *SetRxDutyCycle )( uint32_t rxTime, uint32_t sleepTime ) - SX126x Only
 };
 
 static DioIrqHandler** irq_handlers;
+static queue_t dio0_irq_queue;
+static queue_t dio1_irq_queue;
 
-void dio_gpio_callback(void)
+void __not_in_flash_func(dio_gpio_callback)(void)
 {
-    if (gpio_get_irq_event_mask(SX1276.DIO0.pin) & RADIO_DIO0_GPIO_IRQ) {
-         gpio_acknowledge_irq(SX1276.DIO0.pin, RADIO_DIO0_GPIO_IRQ);
+    uint events;
+    if ((events = gpio_get_irq_event_mask(SX1276.DIO0.pin)) & RADIO_DIO0_GPIO_IRQ) {
+        gpio_acknowledge_irq(SX1276.DIO0.pin, RADIO_DIO0_GPIO_IRQ);
+        queue_try_add(&dio0_irq_queue, &events);
+    }
+    if ((events = gpio_get_irq_event_mask(SX1276.DIO1.pin)) & RADIO_DIO1_GPIO_IRQ) {
+        gpio_acknowledge_irq(SX1276.DIO1.pin, RADIO_DIO1_GPIO_IRQ);
+        queue_try_add(&dio1_irq_queue, &events);
+    }
+}
+
+void SX1276ServiceIrqHandlers( void )
+{
+    uint events;
+    if(queue_try_remove(&dio0_irq_queue, &events)) {
         irq_handlers[0](NULL);
     }
-    if (gpio_get_irq_event_mask(SX1276.DIO1.pin) & RADIO_DIO1_GPIO_IRQ) {
-        gpio_acknowledge_irq(SX1276.DIO1.pin, RADIO_DIO1_GPIO_IRQ);
+    if(queue_try_remove(&dio1_irq_queue, &events)) {
         irq_handlers[1](NULL);
     }
 }
@@ -127,99 +144,19 @@ void SX1276IoInit( void )
 void SX1276IoIrqInit( DioIrqHandler **irqHandlers )
 {
     irq_handlers = irqHandlers;
+    queue_init(&dio0_irq_queue, sizeof(uint), 4);
+    queue_init(&dio1_irq_queue, sizeof(uint), 4);
 
     gpio_set_irq_enabled(SX1276.DIO0.pin, RADIO_DIO0_GPIO_IRQ, true);
     gpio_set_irq_enabled(SX1276.DIO1.pin, RADIO_DIO1_GPIO_IRQ, true);
-    gpio_add_raw_irq_handler_with_order_priority(SX1276.DIO0.pin, dio_gpio_callback, PICO_SHARED_IRQ_HANDLER_HIGHEST_ORDER_PRIORITY);
-    gpio_add_raw_irq_handler_with_order_priority(SX1276.DIO1.pin, dio_gpio_callback, PICO_SHARED_IRQ_HANDLER_HIGHEST_ORDER_PRIORITY);
-}
+    irq_add_shared_handler(IO_IRQ_BANK0, dio_gpio_callback, PICO_SHARED_IRQ_HANDLER_HIGHEST_ORDER_PRIORITY);
 
-/*!
- * \brief Gets the board PA selection configuration
- *
- * \param [IN] power Selects the right PA according to the wanted power.
- * \retval PaSelect RegPaConfig PaSelect value
- */
-static uint8_t SX1276GetPaSelect( int8_t power );
+}
 
 void SX1276SetRfTxPower( int8_t power )
 {
-    uint8_t paConfig = 0;
-    uint8_t paDac = 0;
-
-    paConfig = SX1276Read( REG_PACONFIG );
-    paDac = SX1276Read( REG_PADAC );
-
-    paConfig = ( paConfig & RF_PACONFIG_PASELECT_MASK ) | SX1276GetPaSelect( power );
-
-    if( ( paConfig & RF_PACONFIG_PASELECT_PABOOST ) == RF_PACONFIG_PASELECT_PABOOST )
-    {
-        if( power > 17 )
-        {
-            paDac = ( paDac & RF_PADAC_20DBM_MASK ) | RF_PADAC_20DBM_ON;
-        }
-        else
-        {
-            paDac = ( paDac & RF_PADAC_20DBM_MASK ) | RF_PADAC_20DBM_OFF;
-        }
-        if( ( paDac & RF_PADAC_20DBM_ON ) == RF_PADAC_20DBM_ON )
-        {
-            if( power < 5 )
-            {
-                power = 5;
-            }
-            if( power > 20 )
-            {
-                power = 20;
-            }
-            paConfig = ( paConfig & RF_PACONFIG_OUTPUTPOWER_MASK ) | ( uint8_t )( ( uint16_t )( power - 5 ) & 0x0F );
-        }
-        else
-        {
-            if( power < 2 )
-            {
-                power = 2;
-            }
-            if( power > 17 )
-            {
-                power = 17;
-            }
-            paConfig = ( paConfig & RF_PACONFIG_OUTPUTPOWER_MASK ) | ( uint8_t )( ( uint16_t )( power - 2 ) & 0x0F );
-        }
-    }
-    else
-    {
-        if( power > 0 )
-        {
-            if( power > 15 )
-            {
-                power = 15;
-            }
-            paConfig = ( paConfig & RF_PACONFIG_MAX_POWER_MASK & RF_PACONFIG_OUTPUTPOWER_MASK ) | ( 7 << 4 ) | ( power );
-        }
-        else
-        {
-            if( power < -4 )
-            {
-                power = -4;
-            }
-            paConfig = ( paConfig & RF_PACONFIG_MAX_POWER_MASK & RF_PACONFIG_OUTPUTPOWER_MASK ) | ( 0 << 4 ) | ( power + 4 );
-        }
-    }
     SX1276Write( REG_PACONFIG, 0xff ); //max power ?
     SX1276Write( REG_PADAC, 0x87 ); // Enables the +20dBm option on PA_BOOST pin
-}
-
-static uint8_t SX1276GetPaSelect( int8_t power )
-{
-    if( power > 14 )
-    {
-        return RF_PACONFIG_PASELECT_PABOOST;
-    }
-    else
-    {
-        return RF_PACONFIG_PASELECT_RFO;
-    }
 }
 
 uint32_t SX1276GetBoardTcxoWakeupTime( void )
