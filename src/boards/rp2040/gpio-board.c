@@ -2,7 +2,7 @@
  * Copyright (c) 2021 Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
- * 
+ *
  */
 
 #include "hardware/gpio.h"
@@ -51,12 +51,12 @@ void GpioMcuInit( Gpio_t *obj, PinNames pin, PinModes mode, PinConfigs config, P
     }
 }
 
-void GpioMcuWrite( Gpio_t *obj, uint32_t value )
+__always_inline void GpioMcuWrite( Gpio_t *obj, uint32_t value )
 {
     gpio_put(obj->pin, value);
 }
 
-uint32_t GpioMcuRead( Gpio_t *obj )
+__always_inline uint32_t GpioMcuRead( Gpio_t *obj )
 {
     return gpio_get(obj->pin);
 }
@@ -70,7 +70,7 @@ void GpioMcuSetInterrupt( Gpio_t *obj, IrqModes irqMode, IrqPriorities irqPriori
     // if(irqMode & IRQ_RISING_EDGE) event_mask |= GPIO_IRQ_EDGE_RISE;
     // if(irqMode & IRQ_FALLING_EDGE) event_mask |= GPIO_IRQ_EDGE_FALL;
     // if(irqMode & IRQ_RISING_FALLING_EDGE) event_mask |= GPIO_IRQ_EDGE_FALL | GPIO_IRQ_EDGE_FALL;
-    
+
     // gpio_set_irq_enabled_with_callback(obj->pin, GPIO_IRQ_EDGE_RISE, true, irqHandler);
 }
 

@@ -35,37 +35,37 @@
 
 #include "radio/radio.h"
 
-#define RADIO_DIO0_GPIO_IRQ     GPIO_IRQ_EDGE_RISE
+#define RADIO_DIO0_GPIO_IRQ     GPIO_IRQ_EDGE_RISE | GPIO_IRQ_EDGE_FALL
 #define RADIO_DIO1_GPIO_IRQ     GPIO_IRQ_EDGE_RISE | GPIO_IRQ_EDGE_FALL
 
 void SX1276ServiceIrqHandlers( void );
 
 const struct Radio_s Radio =
 {
-    SX1276Init,
-    SX1276GetStatus,
-    SX1276SetModem,
-    SX1276SetChannel,
-    SX1276IsChannelFree,
-    SX1276Random,
-    SX1276SetRxConfig,
-    SX1276SetTxConfig,
-    SX1276CheckRfFrequency,
-    SX1276GetTimeOnAir,
-    SX1276Send,
-    SX1276SetSleep,
-    SX1276SetStby,
-    SX1276SetRx,
-    SX1276StartCad,
-    SX1276SetTxContinuousWave,
-    SX1276ReadRssi,
-    SX1276Write,
-    SX1276Read,
-    SX1276WriteBuffer,
-    SX1276ReadBuffer,
-    SX1276SetMaxPayloadLength,
-    SX1276SetPublicNetwork,
-    SX1276GetWakeupTime,
+    .Init = SX1276Init,
+    .GetStatus = SX1276GetStatus,
+    .SetModem = SX1276SetModem,
+    .SetChannel = SX1276SetChannel,
+    .IsChannelFree = SX1276IsChannelFree,
+    .Random = SX1276Random,
+    .SetRxConfig = SX1276SetRxConfig,
+    .SetTxConfig = SX1276SetTxConfig,
+    .CheckRfFrequency = SX1276CheckRfFrequency,
+    .TimeOnAir = SX1276GetTimeOnAir,
+    .Send = SX1276Send,
+    .Sleep = SX1276SetSleep,
+    .Standby = SX1276SetStby,
+    .Rx = SX1276SetRx,
+    .StartCad = SX1276StartCad,
+    .SetTxContinuousWave = SX1276SetTxContinuousWave,
+    .Rssi = SX1276ReadRssi,
+    .Write = SX1276Write,
+    .Read = SX1276Read,
+    .WriteBuffer = SX1276WriteBuffer,
+    .ReadBuffer = SX1276ReadBuffer,
+    .SetMaxPayloadLength = SX1276SetMaxPayloadLength,
+    .SetPublicNetwork = SX1276SetPublicNetwork,
+    .GetWakeupTime = SX1276GetWakeupTime,
     .IrqProcess = SX1276ServiceIrqHandlers, // void ( *IrqProcess )( void )
     NULL, // void ( *RxBoosted )( uint32_t timeout ) - SX126x Only
     NULL, // void ( *SetRxDutyCycle )( uint32_t rxTime, uint32_t sleepTime ) - SX126x Only
