@@ -77,14 +77,15 @@ static queue_t dio1_irq_queue;
 
 void __not_in_flash_func(dio_gpio_callback)(void)
 {
-    uint events;
-    if ((events = gpio_get_irq_event_mask(SX1276.DIO0.pin)) & RADIO_DIO0_GPIO_IRQ) {
+    uint dio0_events = gpio_get_irq_event_mask(SX1276.DIO0.pin);
+    if ( dio0_events != 0 ) {
         gpio_acknowledge_irq(SX1276.DIO0.pin, RADIO_DIO0_GPIO_IRQ);
-        queue_try_add(&dio0_irq_queue, &events);
+        queue_try_add(&dio0_irq_queue, &dio0_events);
     }
-    if ((events = gpio_get_irq_event_mask(SX1276.DIO1.pin)) & RADIO_DIO1_GPIO_IRQ) {
+    uint dio1_events = gpio_get_irq_event_mask(SX1276.DIO1.pin);
+    if ( dio1_events != 0 )  {
         gpio_acknowledge_irq(SX1276.DIO1.pin, RADIO_DIO1_GPIO_IRQ);
-        queue_try_add(&dio1_irq_queue, &events);
+        queue_try_add(&dio1_irq_queue, &dio1_events);
     }
 }
 
